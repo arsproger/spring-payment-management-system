@@ -4,9 +4,13 @@ import com.arsen.springpaymentmanagementsystem.dto.PaymentDTO;
 import com.arsen.springpaymentmanagementsystem.enums.Currency;
 import com.arsen.springpaymentmanagementsystem.enums.States;
 import com.arsen.springpaymentmanagementsystem.mapper.PaymentMapper;
-import com.arsen.springpaymentmanagementsystem.models.Payment;
+import com.arsen.springpaymentmanagementsystem.models.Receive;
+import com.arsen.springpaymentmanagementsystem.security.ReceiveDetails;
 import com.arsen.springpaymentmanagementsystem.services.PaymentService;
+import com.arsen.springpaymentmanagementsystem.services.ReceiveService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +20,20 @@ import java.util.stream.Collectors;
 @RequestMapping("/payment")
 public class PaymentController {
     private final PaymentService paymentService;
+    private final ReceiveService receiveService;
     private final PaymentMapper paymentMapper;
 
+    private Receive getReceive() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ReceiveDetails receiveDetails = (ReceiveDetails) authentication.getPrincipal();
+        return receiveDetails.getReceive();
+    }
+
     @Autowired
-    public PaymentController(PaymentService paymentService, PaymentMapper paymentMapper) {
+    public PaymentController(PaymentService paymentService, ReceiveService receiveService,
+                             PaymentMapper paymentMapper) {
         this.paymentService = paymentService;
+        this.receiveService = receiveService;
         this.paymentMapper = paymentMapper;
     }
 
@@ -31,51 +44,36 @@ public class PaymentController {
 
     @GetMapping("/all")
     public List<PaymentDTO> findAll() {
-        return paymentService.findAll().stream().map(
+        return receiveService.findPayments(getReceive().getId()).stream().map(
                 paymentMapper::convertToDTO).collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
-    public PaymentDTO findById(@PathVariable Long id) {
-        return paymentMapper.convertToDTO(paymentService.findById(id));
-    }
-
-    @PostMapping("/{id}")
-    public Long save(@PathVariable Long id, @RequestBody PaymentDTO paymentDTO) {
-        return paymentService.save(id, paymentMapper.convertToEntity(paymentDTO));
-    }
-
-    @DeleteMapping("/{id}")
-    public Long deleteById(@PathVariable Long id) {
-        return paymentService.deleteById(id);
-    }
-
-    @PutMapping("/{id}")
-    public Long updateById(@PathVariable Long id, @RequestBody Payment payment) {
-        return paymentService.updateById(id, payment);
+    @PostMapping
+    public Long save(@RequestBody PaymentDTO paymentDTO) {
+        return paymentService.save(getReceive().getId(), paymentMapper.convertToEntity(paymentDTO));
     }
 
     @GetMapping("/sum/{currency}")
     public Double getPaymentSum(@PathVariable String currency) {
-        return paymentService.getPaymentSum(currency);
+        return paymentService.getPaymentSum(getReceive().getId(), currency);
     }
 
     @GetMapping("/getName/{name}")
     public List<PaymentDTO> findByName(@PathVariable String name) {
-        return paymentService.findByName(name).stream().map(
+        return paymentService.findByNameAndReceiveId(name, getReceive().getId()).stream().map(
                 paymentMapper::convertToDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/getState/{state}")
     public List<PaymentDTO> findByState(@PathVariable String state) {
-        return paymentService.findByState(States.valueOf(state)).stream().map(
+        return paymentService.findByStateAndReceiveId(States.valueOf(state), getReceive().getId()).stream().map(
                 paymentMapper::convertToDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/getCurrency/{currency}")
-    public List<PaymentDTO> findByCurrency(@PathVariable String currency) {
-        return paymentService.findByCurrency(Currency.valueOf(currency)).stream().map(
-                paymentMapper::convertToDTO).collect(Collectors.toList());
+    public List<PaymentDTO> findByCurrencyAndReceiveId(@PathVariable String currency) {
+        return paymentService.findByCurrencyAndReceiveId(Currency.valueOf(currency), getReceive().getId()).
+                stream().map(paymentMapper::convertToDTO).collect(Collectors.toList());
     }
 
 }

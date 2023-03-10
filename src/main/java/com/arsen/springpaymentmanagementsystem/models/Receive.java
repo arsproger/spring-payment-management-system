@@ -18,7 +18,10 @@ public class Receive {
     private Long id;
     private String name;
     private String surname;
+    @Column(unique = true)
+    private String email;
     private String code;
+    private String role;
     @OneToMany(mappedBy = "receive")
     private List<Payment> paymentList;
 }

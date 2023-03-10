@@ -1,6 +1,5 @@
 package com.arsen.springpaymentmanagementsystem.mapper;
 
-import com.arsen.springpaymentmanagementsystem.dto.PaymentAdminDTO;
 import com.arsen.springpaymentmanagementsystem.dto.PaymentDTO;
 import com.arsen.springpaymentmanagementsystem.models.Payment;
 import org.modelmapper.ModelMapper;
@@ -24,7 +23,4 @@ public class PaymentMapper {
         return modelMapper.map(paymentDTO, Payment.class);
     }
 
-    public PaymentAdminDTO convertToAdminDTO(Payment payment) {
-        return modelMapper.map(payment, PaymentAdminDTO.class);
-    }
 }

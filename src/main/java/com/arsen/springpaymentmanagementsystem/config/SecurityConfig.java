@@ -1,5 +1,7 @@
 package com.arsen.springpaymentmanagementsystem.config;
 
+import com.arsen.springpaymentmanagementsystem.security.ReceiveDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -12,6 +14,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    private final ReceiveDetailsService receiveDetailsService;
+    @Autowired
+    public SecurityConfig(ReceiveDetailsService receiveDetailsService) {
+        this.receiveDetailsService = receiveDetailsService;
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(receiveDetailsService)
+                .passwordEncoder(passwordEncoder());
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -19,22 +32,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/admin/*", "/payment/all").hasRole("ADMIN")
+                .antMatchers("/receive/save").anonymous()
+                .antMatchers("/payment").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                    .withUser("user")
-                    .password("user")
-                    .roles("USER")
-                .and()
-                    .withUser("admin")
-                    .password("admin")
-                    .roles("ADMIN");
-    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();

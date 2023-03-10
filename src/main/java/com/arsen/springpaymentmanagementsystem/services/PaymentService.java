@@ -44,32 +44,19 @@ public class PaymentService {
         return id;
     }
 
-    public Long updateById(Long id, Payment updatedPayment) {
-        Payment payment = paymentRepository.findById(id).orElse(null);
-
-        if (payment == null)
-            return 0L;
-
-        payment.setCurrency(updatedPayment.getCurrency());
-        payment.setAmount(updatedPayment.getAmount());
-        payment.setAmount(updatedPayment.getAmount());
-
-        return paymentRepository.save(payment).getId();
+    public Double getPaymentSum(Long id, String name) {
+        return paymentRepository.getPaymentSum(id, name);
     }
 
-    public Double getPaymentSum(String name) {
-        return paymentRepository.getPaymentSum(name);
+    public List<Payment> findByNameAndReceiveId(String name, Long id) {
+        return paymentRepository.findByNameAndReceiveId(name, id);
     }
 
-    public List<Payment> findByName(String name) {
-        return paymentRepository.findByName(name);
+    public List<Payment> findByStateAndReceiveId(States states, Long id) {
+        return paymentRepository.findByStateAndReceiveId(states, id);
     }
 
-    public List<Payment> findByState(States states) {
-        return paymentRepository.findByState(states);
-    }
-
-    public List<Payment> findByCurrency(Currency currency) {
-        return paymentRepository.findByCurrency(currency);
+    public List<Payment> findByCurrencyAndReceiveId(Currency currency, Long id) {
+        return paymentRepository.findByCurrencyAndReceiveId(currency, id);
     }
 }

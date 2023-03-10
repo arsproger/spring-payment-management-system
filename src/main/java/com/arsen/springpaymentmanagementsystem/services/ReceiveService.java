@@ -1,5 +1,6 @@
 package com.arsen.springpaymentmanagementsystem.services;
 
+import com.arsen.springpaymentmanagementsystem.enums.Roles;
 import com.arsen.springpaymentmanagementsystem.models.Payment;
 import com.arsen.springpaymentmanagementsystem.models.Receive;
 import com.arsen.springpaymentmanagementsystem.repositories.PaymentRepository;
@@ -25,12 +26,12 @@ public class ReceiveService {
         this.random = random;
     }
 
-    public List<Payment> findPayments(String name, String code) {
-        return paymentRepository.findByReceiveId(
-                receiveRepository.findPayments(name, code));
+    public List<Payment> findPayments(Long id) {
+        return paymentRepository.findByReceiveId(id);
     }
 
     public Receive save(Receive receive) {
+        receive.setRole(String.valueOf(Roles.ROLE_USER));
         receive.setCode(makePayment());
         return receiveRepository.save(receive);
     }
@@ -48,4 +49,11 @@ public class ReceiveService {
         return password.toString();
     }
 
+    public List<Receive> findAll() {
+        return receiveRepository.findAll();
+    }
+
+    public Receive findById(Long id) {
+        return receiveRepository.findById(id).orElse(null);
+    }
 }

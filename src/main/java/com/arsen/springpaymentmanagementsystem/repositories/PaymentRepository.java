@@ -11,14 +11,14 @@ import java.util.List;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    @Query(value = "SELECT SUM(amount) FROM Payments WHERE currency = :name", nativeQuery = true)
-    Double getPaymentSum(String name);
+    @Query(value = "SELECT SUM(amount) FROM Payments WHERE receive = :id and currency = :name", nativeQuery = true)
+    Double getPaymentSum(Long id, String name);
 
-    List<Payment> findByName(String name);
+    List<Payment> findByNameAndReceiveId(String name, Long id);
 
-    List<Payment> findByState(States state);
+    List<Payment> findByStateAndReceiveId(States state, Long id);
 
-    List<Payment> findByCurrency(Currency currency);
+    List<Payment> findByCurrencyAndReceiveId(Currency currency, Long id);
 
     List<Payment> findByReceiveId(Long id);
 }
