@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final ReceiveDetailsService receiveDetailsService;
+
     @Autowired
     public SecurityConfig(ReceiveDetailsService receiveDetailsService) {
         this.receiveDetailsService = receiveDetailsService;
@@ -31,9 +32,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/admin/*", "/payment/all").hasRole("ADMIN")
+                .antMatchers("/admin/*").hasRole("ADMIN")
                 .antMatchers("/receive/save").anonymous()
-                .antMatchers("/payment").permitAll()
+                .antMatchers("/payment", "/swagger-ui/index.html").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();
